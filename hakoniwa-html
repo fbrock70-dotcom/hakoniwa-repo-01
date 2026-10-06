@@ -1,0 +1,139 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>箱庭タウンズ攻略ツール v19</title><style>
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",sans-serif;background:#f4f6f8;color:#222}.wrap{max-width:720px;margin:auto;padding:14px}h1{font-size:21px;margin:4px 0 12px}.card{background:#fff;border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 2px 8px #0001}input,textarea,select,button{font:inherit}input{width:100%;padding:12px;border:1px solid #ccd2d8;border-radius:10px}button{padding:11px 14px;border:0;border-radius:10px;background:#222;color:#fff;font-weight:700}.searchrow{display:flex;gap:8px}.searchrow input{flex:1}.chips{display:flex;gap:6px;overflow:auto;margin-top:9px}.chip{white-space:nowrap;border:1px solid #ddd;background:#fafafa;color:#222;padding:7px 10px;border-radius:999px}.top{display:flex;justify-content:space-between;align-items:center;gap:8px}.count{font-weight:700}.result{border-top:1px solid #eee;padding:13px 0}.name{font-size:17px;font-weight:800}.buildings{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.tag{background:#eef1f4;padding:6px 8px;border-radius:8px;font-size:13px}.missing{background:#fff0c7;color:#744f00}.stats{font-size:13px;color:#555}.rank{font-size:12px;background:#e8f5e9;padding:3px 7px;border-radius:7px;margin-left:5px}.help{font-size:12px;color:#666;line-height:1.6}textarea{width:100%;min-height:70px;padding:10px;border:1px solid #ccd2d8;border-radius:10px}.buildingInfo{background:#f8fafb;border-radius:10px;padding:11px;margin-top:10px;font-size:13px;line-height:1.65}.method{padding:7px 0;border-bottom:1px solid #e5e5e5}.empty{padding:25px 8px;text-align:center;color:#777}.danger{color:#b42318;font-weight:700}small{color:#666}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark){
+  :root{color-scheme:dark}
+  body{background:#111315;color:#f1f3f5}
+  .card{background:#1b1e22;box-shadow:0 2px 8px #0008}
+  input,textarea,select{background:#25292e;color:#f1f3f5;border-color:#444b53}
+  input::placeholder,textarea::placeholder{color:#8d969f}
+  button{background:#f1f3f5;color:#111315}
+  .chip{background:#25292e;color:#f1f3f5;border-color:#444b53}
+  .result{border-color:#343a40}
+  .tag{background:#30353b;color:#f1f3f5}
+  .missing{background:#4b3d18;color:#ffe49a}
+  .stats,small,.help{color:#aeb6bf}
+  .rank{background:#193b24;color:#b8f0c5}
+  .buildingInfo{background:#20252a}
+  .method{border-color:#3a4047}
+  .empty{color:#9da6ae}
+}
+body.dark{background:#111315;color:#f1f3f5}
+body.dark .card{background:#1b1e22;box-shadow:0 2px 8px #0008}
+body.dark input,body.dark textarea,body.dark select{background:#25292e;color:#f1f3f5;border-color:#444b53}
+body.dark input::placeholder,body.dark textarea::placeholder{color:#8d969f}
+body.dark button{background:#f1f3f5;color:#111315}
+body.dark .chip{background:#25292e;color:#f1f3f5;border-color:#444b53}
+body.dark .result{border-color:#343a40}
+body.dark .tag{background:#30353b;color:#f1f3f5}
+body.dark .missing{background:#4b3d18;color:#ffe49a}
+body.dark .stats,body.dark small,body.dark .help{color:#aeb6bf}
+body.dark .rank{background:#193b24;color:#b8f0c5}
+body.dark .buildingInfo{background:#20252a}
+body.dark .method{border-color:#3a4047}
+body.dark .empty{color:#9da6ae}
+.themeBtn{padding:8px 10px;border:1px solid #ccd2d8;background:#fff;color:#222;font-size:13px}
+@media (prefers-color-scheme: dark){.themeBtn{background:#25292e;color:#f1f3f5;border-color:#444b53}}
+body.dark .themeBtn{background:#25292e;color:#f1f3f5;border-color:#444b53}
+</style></head><body><div class="wrap"><div class="top"><h1>🏙️ 箱庭タウンズ 専門街検索 v19</h1><button id="themeBtn" class="themeBtn" type="button">🌙 ダーク</button></div><div class="card"><div class="searchrow"><input id="q" placeholder="建物名・専門街名で検索（例：魚屋）"><button id="searchBtn">検索</button></div><div class="chips"><button class="chip" data-q="魚屋">魚屋</button><button class="chip" data-q="ゲームショップ">ゲームショップ</button><button class="chip" data-q="オフィス">オフィス</button><button class="chip" data-q="公園">公園</button></div><div id="buildingInfo" class="buildingInfo" style="display:none"></div></div><div class="card"><div class="top"><span>所持建物（任意）</span><select id="sort"><option value="near">完成に近い順</option><option value="land">地価上昇順</option><option value="price">商品価格上昇順</option><option value="name">名前順</option></select></div><textarea id="owned" placeholder="例：公園、パン屋、お弁当屋"></textarea><div class="help">カンマ・読点・改行で区切れます。持っている建物を入れると「あと1軒」などを優先表示します。</div></div><details class="card" id="rankingBox" open><summary style="font-weight:800;cursor:pointer">⭐ おすすめ専門街ランキング <small>効果重視</small></summary><div class="help" style="margin-top:8px">地価と商品価格の上昇値を合算した「総合効果」で並べています。序盤は、手持ちの建物と重なるものを優先するのがおすすめです。<br>建物をタップすると入手方法を表示し、ランキングを自動で閉じます。</div><div id="ranking"></div></details><details class="card" id="beginnerBox" open><summary style="font-weight:800;cursor:pointer">🌱 序盤攻略モード <small>本当に作りやすい順</small></summary><div class="help" style="margin-top:8px">ランクFの常設セット、直接購入、条件付き入手などを区別し、初心者が実際に狙いやすい専門街を優先表示します。入手方法を確認できない建物は「序盤は後回し」にします。</div><div id="beginnerRanking"></div></details><div class="card"><div class="top"><span class="count" id="count"></span><small>専門街は189種</small></div><div id="results"></div></div><div class="card help"><b>使い方</b><br>建物を検索すると、その建物を含む専門街だけに絞り込みます。各建物名をタップすると、その建物の入手方法を表示します。<br><br><b>入手方法について</b><br>ショップのセット情報・直接購入情報をもとに表示します。イベント等は時期や条件で変更される場合があります。</div></div>
+<script>
+const themeBtn=document.getElementById('themeBtn');
+const savedTheme=localStorage.getItem('hakoniwa-theme');
+if(savedTheme==='dark') document.body.classList.add('dark');
+if(savedTheme==='light') document.body.classList.add('light');
+function updateThemeButton(){
+  const isDark=document.body.classList.contains('dark') || (!document.body.classList.contains('light') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  themeBtn.textContent=isDark?'☀️ ライト':'🌙 ダーク';
+}
+themeBtn.addEventListener('click',()=>{
+  const isDark=document.body.classList.contains('dark') || (!document.body.classList.contains('light') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  document.body.classList.remove('dark','light');
+  document.body.classList.add(isDark?'light':'dark');
+  localStorage.setItem('hakoniwa-theme',isDark?'light':'dark');
+  updateThemeButton();
+});
+updateThemeButton();
+
+const DATA=[['ピクニック街','公園','お弁当屋','パン屋',150,20],['スイーツ街','ケーキ屋','クレープ店','ドーナツ屋',90,45],['ふくよか街','ラーメン屋','ピザ屋','ドーナツ屋',110,25],['お手軽街','牛丼屋','定食屋','ファーストフード',150,20],['商売競争街','スーパーマーケット','八百屋','魚屋',90,45],['インドア娯楽街','レンタルビデオ','ボーリング場','ゲームセンター',110,25],['はなやか街','楽器屋','お花屋','ケーキ屋',150,20],['ファミリー街','公園','ゲームショップ','おもちゃ屋',90,45],['便利街','スーパーマーケット','コンビニ','薬局',90,45],['のんびり街','本屋','コーヒーショップ','お花屋',150,20],['ハイテク街','PCショップ','携帯ショップ','家電量販店',150,20],['アキバ街','アニメショップ','ゲームショップ','おもちゃ屋',90,45],['おもひで街','駄菓子屋','神社','銭湯',110,25],['海の街','海の家','船着き場','魚屋',90,45],['地元街','ケーキ屋','八百屋','お花屋',150,20],['学生街','学校','牛丼屋','ファミレス',90,45],['ランチ街','お弁当屋','パン屋','コーヒーショップ',110,25],['シリコンバレー街','ゲームショップ','携帯ショップ','PCショップ',150,20],['ピチピチ街','つり堀','魚屋','水族館',110,25],['買い食い街','ごみ箱','コンビニ','学校',110,25],['通信街','電話ボックス','PCショップ','携帯ショップ',150,20],['ほのぼの街','ベンチ','いちょう','ファーストフード',90,45],['遊ぶ女子街','噴水','クレープ店','動物園',110,25],['アニマル美容街','犬の像','美容室','ペットショップ',150,20],['地域密着街','時計台','地域センター','神社',90,45],['当たりくじ街','宝くじ屋','すし屋','居酒屋',110,25],['水の町','消火栓','つり堀','温水プール',90,45],['教師の1日街','クリーニング店','学校','公園',110,25],['ツーリングロード','ピザ屋','バイクショップ','ファーストフード',150,20],['あじさい弁当','あじさい','お弁当屋','農家',110,20],['のどか地域','ペットショップ','山','つり堀',150,20],['旅番組地','レンタルビデオ','バイクショップ','PCショップ',150,20],['待ち合わせ街','ファミレス','コーヒーショップ','時計台',150,25],['花香る牧場','お花屋','ひまわり','牧場',90,45],['わびさび旅館','魚屋','岩','温泉旅館',110,25],['新鮮飲食街','八百屋','定食屋','魚屋',150,20],['吹奏楽部街','楽器屋','携帯ショップ','銭湯',150,20],['ゲーム玩具街','ゲームショップ','家電量販店','おもちゃ屋',90,45],['ムービー街','アニメショップ','映画館','レンタルビデオ',110,25],['休日の一服','本屋','コーヒーショップ','ベンチ',110,25],['おやっさん街','ラーメン屋','銭湯','電柱',110,25],['教育街','学校','学習塾','本屋',165,25],['ママさん街','スーパーマーケット','クリーニング店','地域センター',105,50],['ゲーマー街','ゲームショップ','PCショップ','ゲームセンター',125,30],['週末贅沢街','すし屋','焼肉屋','ピザ屋',165,25],['温泉街','銭湯','日帰り温泉','温泉旅館',125,30],['健康街','病院','スポーツジム','銭湯',125,30],['ショッピング街','スーパーマーケット','ブティック','宝石店',105,50],['グルメ街','居酒屋','すし屋','ラーメン屋',125,30],['オシャレ街','ブティック','ケーキ屋','薬局',165,25],['知識街','本屋','博物館','学校',165,25],['トレーニング街','温水プール','スポーツジム','薬局',165,25],['自然街','牧場','公園','キャンプ場',105,50],['とれたて街','ドーナツ屋','牧場','クレープ店',165,25],['ロック街','楽器屋','ライブ会場','レンタルビデオ',105,50],['旅の道中','自動販売機','農家','千年松',105,50],['テレビ販売促進','電柱','電波塔','家電量販店',165,25],['総菜パン街','パン屋','山','農家',105,50],['強盗対策地','警備会社','家電量販店','銀行',125,30],['ガッツリ休日街','ボーリング場','牛丼屋','美容室',105,50],['産地直送街','スーパーマーケット','山','農家',125,30],['地域と湯と飯','農家','八百屋','日帰り温泉',125,30],['温水観光地','温水プール','クリーニング店','銭湯',125,30],['休日満喫街','美容室','家電量販店','本屋',165,25],['引越し相談所','不動産屋','案内所','地域センター',105,50],['観戦街','ドーナツ屋','消火栓','競技場',125,30],['自然の家','家具屋','消火栓','果樹林',165,25],['海鮮街','船着き場','つり堀','すし屋',125,30],['アウトドアファミリー','キャンプ場','山','駐車場',165,25],['金トロフィ街 縁','つり堀','金トロフィ像','噴水',105,50],['ご近所街','スポーツ用品店','学校','駄菓子屋',165,25],['お大事に街','診療所','薬局','コンビニ',105,50],['リハビリ街','診療所','日帰り温泉','銭湯',105,50],['新鮮街','屋外プール','水族館','魚屋',165,25],['ファッション街','ブティック','靴屋','美容室',145,35],['療養街','病院','薬局','コンビニ',145,35],['乗り物街','自転車屋','バイクショップ','カーディーラー',125,55],['旅行街','温泉旅館','寺院','お土産屋',185,30],['自然の里','農家','牧場','つり堀',145,35],['館の街','博物館','水族館','映画館',125,55],['警備隊','警備会社','スポーツジム','キャンプ場',145,35],['リフォーム街','工務店','不動産屋','家具屋',185,30],['豪遊街','宝石店','三ツ星ホテル','銀行',185,30],['歓楽街','ゲームセンター','ボーリング場','カジノ',185,30],['文化街','宝石店','博物館','映画館',125,55],['産業街','バイクショップ','カーディーラー','学校',125,55],['アニマル街','ペットショップ','牧場','動物園',125,55],['サラリーマン街','オフィス','クリーニング店','病院',185,30],['ローカルラジオ街','案内所','地域センター','電波塔',185,30],['カイロランド','公共トイレ','カイロ像','遊園地',145,35],['神仏の恵み','大仏様','農家','神社',145,35],['カイロ玩具街','おもちゃ屋','PCショップ','カイロビル',125,55],['セキュリティゾーン','宝石店','警備会社','三ツ星ホテル',185,30],['メカニックグループ','工務店','自転車屋','ロケット会場',185,30],['エンタメ街②','ゲームセンター','水族館','ボーリング場',125,55],['地域のグルメ','ケーキ屋','牧場','農家',185,30],['飲み会街','クラブ','居酒屋','薬局',185,30],['アウトドア街','焼肉屋','キャンプ場','海の家',125,55],['飲み歩き街','靴屋','オフィス','居酒屋',125,50],['空と大地の街','サボテン','花壇','ロケット会場',185,30],['海飲み観光地街','居酒屋','海の家','お城',145,35],['遠足街','駄菓子屋','大仏様','お土産屋',125,55],['銅トロフィ街 食','展望タワー','銅トロフィ像','定食屋',185,30],['銅トロフィ街 湯','展望タワー','銅トロフィ像','銭湯',125,55],['銅トロフィ街 牛','展望タワー','銅トロフィ像','牛丼屋',145,35],['銅トロフィ街 寺','寺院','銅トロフィ像','コンビニ',185,30],['銅トロフィ街 甘','展望タワー','銅トロフィ像','クレープ店',125,55],['銀トロフィ街 動','ファーストフード','銀トロフィ像','スポーツジム',125,55],['銀トロフィ街 車','駐車場','銀トロフィ像','カーディーラー',185,30],['銀トロフィ街 知','ファミレス','銀トロフィ像','博物館',125,55],['スイミング街','屋外プール','海の家','温水プール',185,30],['運動服街','スポーツ用品店','靴屋','ブティック',185,30],['ものしり街','プラネタリウム','学校','博物館',125,55],['スポーツ街','競技場','野球場','スポーツジム',210,35],['暮らしの街','デパート','家具屋','家電量販店',210,35],['大人の街','クラブ','カジノ','居酒屋',150,60],['古都ノ町','三重塔','神社','大仏様',170,40],['セレブ街','お城','ブティック','デパート',170,40],['ビジネス街','高層ビル','超高層ビル','銀行',170,40],['幽霊街','電波塔','病院','学校',170,40],['ハリウッド街','映画館','遊園地','宝石店',210,35],['カイロパーク街','カイロ像','ゲームショップ','カイロビル',150,60],['ロードバイク街','自転車屋','スポーツジム','競技場',150,60],['ライブ生中継','ライブ会場','携帯ショップ','電波塔',170,40],['文武両道街','学習塾','スポーツジム','競技場',170,40],['春ショッピング街','ブティック','サクラ','デパート',210,35],['願掛け空港','神社','国際空港','警備会社',150,60],['通学路','薬局','学校','地下鉄',150,60],['暮らしの町','家具屋','地下鉄','クリーニング店',170,40],['地下鉄観光','お土産屋','地下鉄','三重塔',210,35],['ヘルスケア街','地域センター','病院','地下鉄',150,60],['熱い会場','ライブ会場','駐車場','野球場',150,60],['管制室','ヘリポート','警備会社','PCショップ',150,60],['銅トロフィ街 海','展望タワー','銅トロフィ像','すし屋',170,40],['銅トロフィ街 賭','展望タワー','銅トロフィ像','カジノ',170,40],['銀トロフィ街 賭','コンビニ','銀トロフィ像','カジノ',210,35],['銀トロフィ街 買','バス停','銀トロフィ像','デパート',170,40],['銀トロフィ街 館','博物館','銀トロフィ像','お城',170,40],['銀トロフィ街 輪','バイクショップ','銀トロフィ像','カイロビル',210,35],['金トロフィ街 豊','日帰り温泉','金トロフィ像','牧場',170,40],['金トロフィ街 遊','海の家','金トロフィ像','遊園地',210,35],['金トロフィ街 映','デパート','金トロフィ像','映画館',150,60],['ゴルフ街','ゴルフ練習場','ゴルフコース場','スポーツ用品店',170,40],['ホールインワン街','ゴルフ練習場','金トロフィ像','ドーナツ屋',170,40],['動物街','サファリパーク','カイロ犬像','ペットショップ',210,35],['イベント街','映画館','遊園地','ライブ会場',210,45],['ふれあい街','水族館','動物園','牧場',190,65],['エンタメ街①','電波塔','テレビ局','ライブ会場',190,65],['ビル街','高層ビル','超高層ビル','カイロビル',210,45],['和洋カイロ決戦','キャッスル','お城','カイロ像',250,40],['空を目指す街','ロケット会場','ヘリポート','国際空港',190,65],['デートスポット','遊園地','動物園','映画館',210,45],['スペシャル街','国際空港','テレビ局','超高層ビル',210,45],['大手リーマン街','高層オフィス','しだれ桜','高層ビル',190,65],['メトロ通勤街','地下鉄','高層オフィス','高層ビル',250,40],['金トロフィ街 城','キャッスル','金トロフィ像','三ツ星ホテル',210,45],['金トロフィ街 和','三ツ星ホテル','金トロフィ像','しだれ桜',250,40],['金トロフィ街 寿','電波塔','金トロフィ像','すし屋',190,65],['ルン子像街','ルン子像','金トロフィ像','三重塔',210,45],['アブファラ像街','アブファラ像','金トロフィ像','カイロビル',250,40],['カイロマン像街','カイロマン像','金トロフィ像','映画館',190,65],['カイロ犬像街','カイロ犬像','金トロフィ像','病院',210,45],['カイロ親父像街','カイロ親父像','金トロフィ像','テレビ局',250,40],['クマックス像街','クマックス像','金トロフィ像','家電量販店',190,65],['ソフ子姫像街','ソフ子姫像','金トロフィ像','温泉旅館',210,45],['チンパンG街','チンパンG像','金トロフィ像','スポーツジム',250,40],['パンプキン像街','パンプキン像','金トロフィ像','カーディーラー',190,65],['ひしょ子像街','ひしょ子像','金トロフィ像','遊園地',210,45],['ひつじ像街','ひつじ像','金トロフィ像','学校',250,40],['マダコ星人像街','マダコ星人像','金トロフィ像','競技場',190,65],['みな子像街','みな子像','金トロフィ像','水族館',210,45],['ワイロくん像街','ワイロくん像','金トロフィ像','牧場',250,40],['宇佐美像街','宇佐美像','金トロフィ像','野球場',190,65],['天使カイロ像街','天使カイロ像','金トロフィ像','動物園',210,45],['宇宙街','プラネタリウム','ロケット会場','マダコ星人像',190,65],['大型動物園','サファリパーク','動物園','水族館',250,40],['ほっこり街','通年スキー場','温泉旅館','牧場',190,65],['パカパカ街','競馬場','牧場','動物園',210,45],['接待街','ゴルフコース場','カイロ親父像','居酒屋',210,45],['あぶく銭街','競馬場','アブファラ像','カジノ',210,45],['リゾート街','通年スキー場','ワイロくん像','国際空港',190,65],['郊外街','ホームセンター','農家','PCショップ',170,40],['お引越し街','ホームセンター','不動産屋','スーパーマーケット',145,35],['ニコニコ街','ソフ子姫像','噴水広場','遊園地',190,65],['金トロフィ街 緑','噴水','金トロフィ像','つり堀',105,50],['高原街','温泉旅館','キャンプ場','噴水広場',150,60],['大自然街','山','通年スキー場','ゴルフコース場',210,45],['大儲け街','高層オフィス','焼肉屋','カイロ像',190,65],['特訓街','金トロフィ像','運動場','野球場',210,35]];
+const DIRECT={"三ツ星ホテル":['1',420],"ゲームショップ":['1',35],"居酒屋":['1',168],"ひまわり":['1',21],"高層オフィス":['2',252],"電波塔":['2',420],"アニメショップ":['2',35],"あじさい":['2',21],"駄菓子屋":['2',105],"お城":['3',630],"宝石店":['3',330],"ごみ箱":['3',10],"岩":['3',10],"ボーリング場":['4',231],"ヤナギ":['4',21],"銀行":['4',210],"電話ボックス":['4',21],"高層ビル":['5',441],"竹林":['5',21],"本屋":['5',147],"ベンチ":['5',7],"PCショップ":['6',252],"工務店":['6',210],"噴水":['6',21],"樹木":['6',7],"三重塔":['7',378],"ゲームセンター":['7',62],"犬の像":['7',42],"菜の花":['7',6],"カイロビル":['8',483],"サクラ":['8',42],"学習塾":['8',231],"時計台":['8',7],"ブティック":['9',252],"映画館":['9',315],"いちょう":['9',21],"宝くじ屋":['9',21],"病院":['10',357],"神社":['10',231],"果樹林":['10',63],"案内所":['10',42],"テレビ局":['11',378],"千年松":['11',63],"スーパーマーケット":['11',210],"自動販売機":['11',21],"しだれ桜":['12',63],"家電量販店":['12',315],"ケーキ屋":['12',210],"公共トイレ":['12',21],"温泉旅館":['13',273],"薬局":['13',210],"電柱":['13',7],"林":['13',21],"すし屋":['14',231],"スポーツジム":['14',252],"山":['14',63],"消火栓":['14',7],"カーディーラー":['15',315],"農家":['15',210],"定食屋":['15',210],"公園":['15',63],"遊園地":['16',420],"クラブ":['16',273],"ピザ屋":['16',28],"銭湯":['16',168],"自転車屋":['17',84],"学校":['17',315],"焼肉屋":['17',231],"牛丼屋":['17',105],"競技場":['18',420],"寺院":['18',315],"温水プール":['18',252],"お弁当屋":['18',62],"水族館":['19',378],"美容室":['19',252],"ペットショップ":['19',84],"クレープ店":['19',42],"不動産屋":['20',315],"パン屋":['20',63],"牧場":['20',378],"カジノ":['20',294],"野球場":['21',420],"コンビニ":['21',189],"クリーニング店":['21',210],"携帯ショップ":['21',84],"動物園":['22',399],"ファーストフード":['22',168],"レンタルビデオ":['22',84],"お土産屋":['22',126],"超高層ビル":['23',462],"カイロ像":['23',525],"靴屋":['23',189],"駐車場":['23',168],"国際空港":['24',504],"大仏様":['24',462],"ファミレス":['24',189],"ドーナツ屋":['24',35],"家具屋":['25',210],"博物館":['25',315],"コーヒーショップ":['25',105],"つつじ":['25',7],"バイクショップ":['26',315],"地域センター":['26',210],"お花屋":['26',63],"花壇":['26',7],"キャンプ場":['27',273],"つり堀":['27',252],"リンゴの木":['27',42],"魚屋":['27',63],"ライブ会場":['28',357],"日帰り温泉":['28',315],"八百屋":['28',63],"サボテン":['28',7],"海の家":['29',294],"おもちゃ屋":['29',105],"ラーメン屋":['29',168],"松の木":['29',7],"ロケット会場":['30',440],"警備会社":['30',168],"デパート":['30',356],"ヤシの木":['30',6],"キャッスル":['31',462],"ヘリポート":['31',399],"楽器屋":['31',147],"うめ":['31',42]};
+const SETS={"公園":"ランクF 公園セット（食品ポイント）","魚屋":"ランクF 買い物セット（娯楽ポイント）","八百屋":"ランクF 買い物セット（娯楽ポイント）","コンビニ":"ランクF 買い物セット（娯楽ポイント）","ゲームショップ":"ランクF のほほんセット（ダイヤ）","アニメショップ":"ランクF のほほんセット（ダイヤ）","ラーメン屋":"ランクF 飲食セット（接客ポイント）","ファーストフード":"ランクF 飲食セット（接客ポイント）","ファミレス":"ランクF 飲食セット（接客ポイント）","牛丼屋":"ランクF 飲食セット（接客ポイント）","パン屋":"ランクF 飲食セット（接客ポイント）","ピザ屋":"ランクF 飲食セット（接客ポイント）","居酒屋":"ランクF ビジネスセット（接客ポイント）","定食屋":"ランクF ビジネスセット（接客ポイント）","案内所":"ランクF ビジネスセット（接客ポイント）","お弁当屋":"ランクF ビジネスセット（接客ポイント）","コーヒーショップ":"ランクF ビジネスセット（接客ポイント）","携帯ショップ":"ランクF ビジネスセット（接客ポイント）","ベンチ":"ランクF 公園セット（食品ポイント）","噴水":"ランクF 公園セット（食品ポイント）","時計台":"ランクF 公園セット（食品ポイント）","犬の像":"ランクF 公園セット（食品ポイント）","電話ボックス":"ランクF 公園セット（食品ポイント）","消火栓":"ランクF 設備セット（文化ポイント）","自動販売機":"ランクF 設備セット（文化ポイント）","ごみ箱":"ランクF 設備セット（文化ポイント）","電柱":"ランクF 設備セット（文化ポイント）","公共トイレ":"ランクF 設備セット（文化ポイント）","工務店":"ランクF 設備セット（文化ポイント）","林":"ランクF 植物セット（食品ポイント）","花壇":"ランクF 植物セット（食品ポイント）","松の木":"ランクF 植物セット（食品ポイント）","つつじ":"ランクF 植物セット（食品ポイント）","岩":"ランクF 植物セット（食品ポイント）"};
+function norm(s){return String(s||'').trim().toLowerCase().replaceAll('　',' ')}
+function ownedList(){return (document.getElementById('owned').value||'').split(/[、,\n\s]+/).map(norm).filter(Boolean)}
+const WEEKLY={
+'ゲームショップ':'月曜限定「日替りセット#2」／ランクB・接客ポイント125',
+'アニメショップ':'月曜限定「日替りセット#2」／ランクB・接客ポイント125',
+'魚屋':'恒常「買い物セット」／娯楽ポイント・月27日直接購入（63ダイヤ）',
+'公園':'月曜限定「のんびりセット」／食品ポイント84',
+'家電量販店':'月曜限定「のんびりセット」／食品ポイント84',
+'映画館':'月曜限定「おでかけセット」／接客ポイント65',
+'ボーリング場':'月曜限定「のんびりセット」／食品ポイント84・水曜限定「趣味セット」',
+'温泉旅館':'月曜限定「わいわいセット」／食品ポイント105',
+'三重塔':'月曜限定「まったりセット」／食品ポイント140',
+'ゲームセンター':'月曜限定「日替りセット#2」／ランクB・接客ポイント125',
+'ブティック':'月曜限定「日替りセット#2」／ランクB・接客ポイント125',
+'映画館':'月曜限定「おでかけセット」／接客ポイント65',
+'カイロビル':'日曜限定「修学旅行セット」／ダイヤ231個',
+'神社':'日曜限定「庭園セット」／文化ポイント113',
+'高層オフィス':'日曜限定「社長セット」／ダイヤ420個',
+'テレビ局':'日曜限定「社長セット」／ダイヤ420個',
+'銀行':'日曜限定「社長セット」／ダイヤ420個',
+'牧場':'火曜限定「田舎セット」／ダイヤ330個',
+'バイクショップ':'火曜・水曜など複数の限定セット',
+'宝石店':'火曜「ショッピングセット」／文化ポイント等',
+'カジノ':'水曜限定「トレーニングセット」／接客ポイント145',
+'高層ビル':'水曜限定「金持ちセット」／ダイヤ231個',
+'超高層ビル':'水曜限定「豪遊セット」／ダイヤ420個',
+'国際空港':'木曜限定「ハッスルセット」／ダイヤ420個'
+};
+const EVENTS={
+'ゲームショップ':'原始の集落づくり：イベントセット#1～#3のシークレットとして登場',
+'魚屋':'お江戸の町づくり：イベントセット#3に含まれる',
+'魚屋':'ファンタジーマップ：イベントセット#2に含まれる',
+'大仏様':'学校をつくっちゃおう：1度きりセット#1／直接購入480ダイヤ',
+'三ツ星ホテル':'学校をつくっちゃおう：1度きりセット#1／直接購入480ダイヤ',
+'温泉旅館':'学校をつくっちゃおう：1度きりセット#1／直接購入480ダイヤ',
+'牧場':'学校をつくっちゃおう：1度きりセット#1／直接購入480ダイヤ'
+};
+function info(name){let a=[];if(DIRECT[name]){const [day,price]=DIRECT[name];a.push('💎 直接購入：毎月'+day+'日／'+price+'ダイヤ');}if(SETS[name])a.push('🛍️ 恒常セット：'+SETS[name]);if(WEEKLY[name])a.push('📅 曜日限定：'+WEEKLY[name]);if(EVENTS[name])a.push('🎪 期間限定：'+EVENTS[name]);a.push('🔓 ロック中でも、ショップの研究・ダイヤ購入・となり町ノルマなどで解除できる場合があります。');return a}
+function showInfo(name){let el=document.getElementById('buildingInfo');el.style.display='block';el.innerHTML='<b>🏢 '+name+'</b>'+info(name).map(x=>'<div class="method">'+x+'</div>').join('')+'<small>※直接購入・恒常セット・曜日限定・期間限定の情報は攻略Wiki掲載情報を基準にしています。価格はセール等で変動する場合があります。</small>'}
+function renderRanking(){let have=ownedList();let freq={};DATA.forEach(r=>r.slice(1,4).forEach(b=>freq[norm(b)]=(freq[norm(b)]||0)+1));let arr=DATA.map(r=>{let bs=r.slice(1,4),n=bs.filter(b=>have.includes(norm(b))).length,score=r[4]+r[5];return {r,bs,n,score}}).sort((a,b)=>b.score-a.score||b.r[4]-a.r[4]).slice(0,10);let out='';arr.forEach((x,i)=>{let st=x.n===3?'完成':x.n===2?'あと1軒':x.n===1?'あと2軒':'';out+='<div class="result"><div class="name">'+(i+1)+'. '+x.r[0]+(st?'<span class="rank">'+st+'</span>':'')+'</div><div class="buildings">'+x.bs.map(b=>'<button class="tag '+(have.includes(norm(b))?'':'missing')+'" data-building="'+b.replaceAll('"','&quot;')+'">'+b+'</button>').join('')+'</div><div class="stats">地価 +'+x.r[4]+'%　商品価格 +'+x.r[5]+'%　総合効果 '+x.score+'%</div></div>'});document.getElementById('ranking').innerHTML=out;renderBeginnerRanking(have,freq)}
+function accessLevel(b){
+  if(SETS[b]) return 3; // ランクFの常設セットを確認できる建物
+  if(DIRECT[b]){
+    const price=Number(DIRECT[b][1])||9999;
+    return price<=100?2:1;
+  }
+  if(WEEKLY[b]||EVENTS[b]) return 1;
+  return 0;
+}
+function accessLabel(level){return level===3?'🟢 常設セットあり':level===2?'🟢 直接購入しやすい':level===1?'🟡 条件・費用あり':'🔴 入手方法を要確認'}
+function beginnerScore(x){
+  const levels=x.bs.map(accessLevel);
+  const min=Math.min(...levels), sum=levels.reduce((a,b)=>a+b,0);
+  // 所持状況を最優先。次に「3軒とも恒常セットで狙えるか」を重視。
+  return x.owned*300 + sum*55 + x.r[4] + x.r[5] - (min===0?180:0) - (min===1?45:0);
+}
+function renderBeginnerRanking(have,freq){
+  let arr=DATA.map(r=>{
+    let bs=r.slice(1,4), owned=bs.filter(b=>have.includes(norm(b))).length;
+    let levels=bs.map(accessLevel), min=Math.min(...levels), common=bs.reduce((s,b)=>s+(freq[norm(b)]||0),0), effect=r[4]+r[5];
+    let x={r,bs,owned,levels,min,common,effect}; x.score=beginnerScore(x); return x;
+  });
+  const easy=arr.filter(x=>x.min>=3).sort((a,b)=>b.score-a.score||b.owned-a.owned||b.effect-a.effect).slice(0,7);
+  const mid=arr.filter(x=>x.min>=1&&x.min<3).sort((a,b)=>b.score-a.score||b.owned-a.owned||b.effect-a.effect).slice(0,5);
+  const hard=arr.filter(x=>x.min===0).sort((a,b)=>b.effect-a.effect||b.owned-a.owned).slice(0,5);
+  const card=(x,i)=>{
+    let st=x.owned===3?'完成':x.owned===2?'あと1軒':x.owned===1?'あと2軒':'未所持';
+    let methods=x.bs.map((b,j)=>accessLabel(x.levels[j])).join(' / ');
+    return '<div class="result"><div class="name">'+(i+1)+'. '+x.r[0]+'<span class="rank">'+st+'</span></div><div class="buildings">'+x.bs.map(b=>'<button class="tag '+(have.includes(norm(b))?'':'missing')+'" data-building="'+b.replaceAll('"','&quot;')+'">'+b+'</button>').join('')+'</div><div class="stats">地価 +'+x.r[4]+'%　商品価格 +'+x.r[5]+'%　｜ '+methods+'</div></div>';
+  };
+  let out='<div class="help"><b>判定基準</b>：ランクFの常設セットで確認できる建物を最優先。直接購入や条件付き入手は次点、入手方法を確認できない建物は序盤ランキングから外して「後回し」にしています。</div>';
+  out+='<h3 style="margin:14px 0 6px">🟢 今すぐ狙いやすい</h3>'+(easy.length?easy.map(card).join(''):'<div class="empty">現在の条件では該当なし</div>');
+  out+='<h3 style="margin:14px 0 6px">🟡 少し進めてから</h3>'+(mid.length?mid.map(card).join(''):'<div class="empty">現在の条件では該当なし</div>');
+  out+='<h3 style="margin:14px 0 6px">🔴 序盤は後回し</h3>'+(hard.length?hard.map(card).join(''):'<div class="empty">該当なし</div>');
+  document.getElementById('beginnerRanking').innerHTML=out;
+}
+function render(){let q=norm(document.getElementById('q').value), have=ownedList(), mode=document.getElementById('sort').value;let arr=DATA.map(r=>({r,bs:r.slice(1,4),hit:r[0].includes(q)||r.slice(1,4).some(x=>norm(x).includes(q))})).filter(x=>!q||x.hit).map(x=>{let n=x.bs.filter(b=>have.includes(norm(b))).length;return {...x,n,miss:x.bs.filter(b=>!have.includes(norm(b)))}});arr.sort((a,b)=>mode==='name'?a.r[0].localeCompare(b.r[0],'ja'):mode==='land'?b.r[4]-a.r[4]:mode==='price'?b.r[5]-a.r[5]:b.n-a.n||b.r[4]-a.r[4]);document.getElementById('count').textContent=(q?'検索結果 ':'専門街一覧 ')+arr.length+'件';let out='';for(const x of arr){let status=x.n===3?'完成':x.n===2?'あと1軒':x.n===1?'あと2軒':'';out+='<div class="result"><div class="name">'+x.r[0]+(status?'<span class="rank">'+status+'</span>':'')+'</div><div class="buildings">'+x.bs.map(b=>'<button class="tag '+(have.includes(norm(b))?'':'missing')+'" data-building="'+b.replaceAll('"','&quot;')+'">'+b+'</button>').join('')+'</div><div class="stats">地価 +'+x.r[4]+'%　商品価格 +'+x.r[5]+'%</div></div>'}document.getElementById('results').innerHTML=out||'<div class="empty">該当する専門街がありません。</div>';renderRanking()}
+function searchNow(){let q=document.getElementById('q').value.trim();if(q){let exact=DATA.flatMap(r=>r.slice(1,4)).find(b=>norm(b)===norm(q));showInfo(exact||q);}else{document.getElementById('buildingInfo').style.display='none';}render()}document.getElementById('searchBtn').onclick=searchNow;document.getElementById('q').oninput=e=>{let v=e.target.value.trim();if(v){let exact=DATA.flatMap(r=>r.slice(1,4)).find(b=>norm(b)===norm(v));showInfo(exact||v);}else{document.getElementById('buildingInfo').style.display='none';}render()};document.getElementById('q').onkeydown=e=>{if(e.key==='Enter')searchNow()};document.getElementById('sort').onchange=render;document.getElementById('owned').oninput=render;document.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{document.getElementById('q').value=b.dataset.q;searchNow()});document.getElementById('results').onclick=e=>{let b=e.target.closest('[data-building]');if(b){document.getElementById('q').value=b.dataset.building;showInfo(b.dataset.building);render()}};document.getElementById('ranking').onclick=e=>{let b=e.target.closest('[data-building]');if(b){document.getElementById('q').value=b.dataset.building;showInfo(b.dataset.building);render();document.getElementById('rankingBox').open=false;window.scrollTo({top:0,behavior:'smooth'});}};document.getElementById('beginnerRanking').onclick=e=>{let b=e.target.closest('[data-building]');if(b){document.getElementById('q').value=b.dataset.building;showInfo(b.dataset.building);render();document.getElementById('beginnerBox').open=false;window.scrollTo({top:0,behavior:'smooth'});}};render();
+</script></body></html>
